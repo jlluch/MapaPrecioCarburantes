@@ -16,10 +16,35 @@ from datetime import datetime
 import geopandas as gpd
 from math import sqrt
 import pytz
-
+import urllib3
+import requests
 import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
+import io
 
+#ssl._create_default_https_context = ssl._create_unverified_context
+
+class CustomHttpAdapter(requests.adapters.HTTPAdapter):
+    # "Transport adapter" that allows us to use custom ssl_context.
+
+    def __init__(self, ssl_context=None, **kwargs):
+        self.ssl_context = ssl_context
+        super().__init__(**kwargs)
+
+    def init_poolmanager(self, connections, maxsize, block=False):
+        self.poolmanager = urllib3.poolmanager.PoolManager(
+            num_pools=connections,
+            maxsize=maxsize,
+            block=block,
+            ssl_context=self.ssl_context,
+        )
+
+
+def get_legacy_session():
+    ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+    ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
+    session = requests.session()
+    session.mount("https://", CustomHttpAdapter(ctx))
+    return session
 
 APP_TITLE = 'Precio de carburantes de estaciones de servicio'
 APP_SUB_TITLE = 'Fuente: Ministerio transición ecológica.'
@@ -46,7 +71,9 @@ def rgb_to_hex(rgb):
 def cargarFichero():
     FAct = "Actualizado: "+datetime.now(tz=pytz.timezone('Europe/Madrid')).strftime("%d/%m/%Y %H:%M")
     URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
-    df = pd.read_excel(URL, skiprows=3, engine="xlrd")
+    res = get_legacy_session().get(URL)
+    df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
+    #df = pd.read_excel(URL, skiprows=3, engine="xlrd")
     # Provincia	Municipio	Localidad	Código postal	Dirección	Margen	Longitud	Latitud	Toma de datos	
     # Precio gasolina 95 E5	Precio gasolina 95 E10	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
     elim = ['MELILLA','CEUTA','PALMAS (LAS)','SANTA CRUZ DE TENERIFE']
