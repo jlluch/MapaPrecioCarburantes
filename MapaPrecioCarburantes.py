@@ -166,7 +166,7 @@ radio = 5
 if posEval:
     location = get_geolocation()
     
-fg = folium.FeatureGroup(name="State bounds")
+fg = folium.FeatureGroup(name="Gasolineras")
 if location != None:
     radio = st.slider('Distancia: ', min_value=1, max_value=15, value=5, step=1)
     latMap = location.get('coords').get('latitude')
@@ -202,4 +202,4 @@ folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["c
 #     m.add_child(fg)
 
 # folium_static(m, width=400, height=600)
-st_folium(m,width=400, height=600)
+st_folium(m,feature_group_to_add=fg, width=800, height=600)
