@@ -150,6 +150,7 @@ def creaMarcas(dfprov, fg):
     for i in range(len(dfprov)):
         marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
         fg.add_child(marker)
+    return fg
 
 
 st.set_page_config(page_title=APP_TITLE,layout="wide")
