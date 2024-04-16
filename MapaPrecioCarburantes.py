@@ -153,6 +153,8 @@ provincia = display_prov_filter()
 
 df, prov_data, gdf, FAct = cargarFichero()
 
+dfprov = df[df.Provincia == provincia].reset_index()
+
 st.caption(APP_SUB_TITLE+'\n'+FAct)
 st.caption(APP_SUB_TITLE2)
 
@@ -179,9 +181,9 @@ if location != None:
     st.subheader('Más baratas a: ' + str(radio)+ ' kms de tu posición')
 
 else :
-    lonMap=df[df['Provincia'] == provincia].Longitud.mean()
-    latMap=df[df['Provincia'] == provincia].Latitud.mean()    
-    baratas = df[(df['Provincia'] == provincia)].sort_values(by=combustible).reset_index(inplace=False)
+    lonMap=dfprov.Longitud.mean()
+    latMap=dfprov.Latitud.mean()    
+    baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
     st.subheader('Más baratas de la provincia: '+provincia)
 
 x=min(len(baratas), 10)
@@ -191,8 +193,8 @@ if x>0:
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
-for i in range(len(df)):
-    marker = folium.CircleMarker(location=[df.Latitud.iat[i],df.Longitud.iat[i],],popup=df.data.iat[i],radius=10,color=df.color.iat[i],fill=True, fill_opacity=0.7)
+for i in range(len(dfprov)):
+    marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
     fg.add_child(marker)
 
 
