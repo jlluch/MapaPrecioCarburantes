@@ -64,8 +64,6 @@ columnas = ['Provincia', 'Municipio', 'Localidad', 'Código postal', 'Dirección
            'Precio gasolina 95 E5', 'Precio gasolina 98 E5','Precio gasóleo A', 'Rótulo', 'Horario']
 
 
-fg = folium.FeatureGroup(name="Gasolineras")
-
 def rgb_to_hex(rgb):
     return '%02x%02x%02x' % rgb
 
@@ -107,14 +105,8 @@ def cargarFichero():
             df['data'].iat[i] = str(df.Localidad.iat[i])+"\n"+str(df.Dirección.iat[i])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df['Precio gasóleo A'].iat[i])+"€"
     return df, prov_data, gdf, FAct
 
-def prov_change(key):
-    for i in range(len(dfprov)):
-        marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
-        fg.add_child(marker)
-    return fg
-
 def display_prov_filter():    
-    provincia = st.sidebar.selectbox('Provincia', prov, index=44, key='selectProv', on_change=prov_change)
+    provincia = st.sidebar.selectbox('Provincia', prov, index=44, key='selectProv')
     return provincia
 
 def display_comb_filter():
@@ -153,14 +145,6 @@ def get_buffer_box_geopandas(point_lat_long, distance_km):
     # .values[0] will extract first row as an array
     return wgs84_buffer.bounds.values[0]
 
-
-def creaMarcas(dfprov, fg):
-    for i in range(len(dfprov)):
-        marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
-        fg.add_child(marker)
-    return fg
-
-
 st.set_page_config(page_title=APP_TITLE,layout="wide")
 st.title(APP_TITLE)
 
@@ -184,7 +168,7 @@ radio = 5
 if posEval:
     location = get_geolocation()
     
-
+fg = folium.FeatureGroup(name="Gasolineras")
 if location != None:
     radio = st.slider('Distancia: ', min_value=1, max_value=15, value=5, step=1)
     latMap = location.get('coords').get('latitude')
@@ -209,9 +193,13 @@ if x>0:
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
-creaMarcas(dfprov, fg)
+for i in range(len(dfprov)):
+    marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
+    fg.add_child(marker)
 
-folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
+
+
+# folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
 
 # if location != None: 
 #     m.add_child(fg)
