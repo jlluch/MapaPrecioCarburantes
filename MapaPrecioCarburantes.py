@@ -166,11 +166,11 @@ radio = 5
 if posEval:
     location = get_geolocation()
     
+fg = folium.FeatureGroup(name="State bounds")
 if location != None:
     radio = st.slider('Distancia: ', min_value=1, max_value=15, value=5, step=1)
     latMap = location.get('coords').get('latitude')
-    lonMap = location.get('coords').get('longitude')
-    fg = folium.FeatureGroup(name="State bounds")
+    lonMap = location.get('coords').get('longitude')   
     fg.add_child(folium.Marker([latMap , lonMap ],radius=500,popup="Mi posición",color="#3186cc",fill=True,fill_color="#3186cc"))
     fg.add_child(folium.vector_layers.Circle(location=[latMap , lonMap], radius=radio*1000, color='orange'))
     bb = get_buffer_box_geopandas([location.get('coords').get('latitude'), location.get('coords').get('longitude')],radio)
@@ -192,7 +192,8 @@ if x>0:
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
 for i in range(len(df)):
-    fg.add_child(folium.CircleMarker(location=[df.Latitud.iat[i],df.Longitud.iat[i],],popup=df.data.iat[i],radius=10,color=df.color.iat[i],fill=True, fill_opacity=0.7))
+    marker = folium.CircleMarker(location=[df.Latitud.iat[i],df.Longitud.iat[i],],popup=df.data.iat[i],radius=10,color=df.color.iat[i],fill=True, fill_opacity=0.7)
+    fg.add_child(marker)
 
 
 folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
