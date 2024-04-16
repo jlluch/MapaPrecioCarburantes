@@ -193,10 +193,12 @@ if x>0:
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
-for i in range(len(dfprov)):
-    folium.Circle(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=150,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7).add_to(m)
+folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
 
-# folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
+for i in range(len(dfprov)):
+    folium.Circle(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=100,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7).add_to(m)
+
+
 
 if location != None: 
     m.add_child(fg)
