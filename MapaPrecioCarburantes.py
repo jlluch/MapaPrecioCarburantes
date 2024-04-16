@@ -202,4 +202,7 @@ if location != None:
     m.add_child(fg)
 
 folium_static(m, width=800, height=600)
+
+st.write(dfprov.head())
+
 # st_folium(m,feature_group_to_add=fg, width=800, height=600)
