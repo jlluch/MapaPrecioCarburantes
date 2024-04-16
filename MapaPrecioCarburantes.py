@@ -145,6 +145,13 @@ def get_buffer_box_geopandas(point_lat_long, distance_km):
     # .values[0] will extract first row as an array
     return wgs84_buffer.bounds.values[0]
 
+@st.cache_data
+def creaMarcas(dfprov, fg):
+    for i in range(len(dfprov)):
+        marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
+        fg.add_child(marker)
+
+
 st.set_page_config(page_title=APP_TITLE,layout="wide")
 st.title(APP_TITLE)
 
@@ -193,10 +200,7 @@ if x>0:
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
-for i in range(len(dfprov)):
-    marker = folium.CircleMarker(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=10,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7)
-    fg.add_child(marker)
-
+creaMarcas(dfprov, fg)
 
 folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
 
