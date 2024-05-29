@@ -8,6 +8,7 @@ Created on Wed Apr  6 16:41:40 2022
 
 import streamlit as st
 from streamlit_js_eval import streamlit_js_eval, get_geolocation
+import streamlit.components.v1 as components
 import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
@@ -69,10 +70,12 @@ def rgb_to_hex(rgb):
 
 @st.cache_data(ttl=86400) 
 def cargarFichero():
-    FAct = "Actualizado: "+datetime.now(tz=pytz.timezone('Europe/Madrid')).strftime("%d/%m/%Y %H:%M")
     URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
     res = get_legacy_session().get(URL)
     df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
+    # pull update data from XLS
+    update_date = pd.read_excel(io.BytesIO(res.content), header=None, usecols="B", nrows=1, engine="xlrd").iloc[0, 0]
+    FAct = "Actualizado: " + str(update_date)
     #df = pd.read_excel(URL, skiprows=3, engine="xlrd")
     # Provincia	Municipio	Localidad	Código postal	Dirección	Margen	Longitud	Latitud	Toma de datos	
     # Precio gasolina 95 E5	Precio gasolina 95 E10	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
@@ -187,9 +190,33 @@ else :
     st.subheader('Más baratas de la provincia: '+provincia)
 
 x=min(len(baratas), 10)
-if x>0:
-    for i in range(x):
-        st.write(baratas.Localidad.iat[i]+' : '+baratas['Dirección'].iat[i]+' -- '+str(baratas['Código postal'].iat[i])+' -- Horario: '+str(baratas['Horario'].iat[i])+' --  Precio: '+str(baratas[combustible].iat[i])+' €')    
+if x > 0:
+    baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
+    baratas = baratas[['Rótulo', 'Localidad', 'Dirección', 'Código postal', 'Horario', combustible, 'Latitud', 'Longitud']]
+    baratas.columns = ['Estación', 'Localidad', 'Dirección', 'Código Postal', 'Horario', 'Precio', 'Latitud', 'Longitud']
+    baratas['Navegación'] = baratas.apply(lambda row: f"<a href='https://www.google.com/maps/search/?api=1&query={row['Latitud']},{row['Longitud']}' target='_blank'><img src='https://cdn-icons-png.flaticon.com/512/888/888856.png' width='20' height='20'></a>", axis=1)
+
+    # Render Bootstrap table
+    html = f"""
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Estación</th>
+                <th>Localidad</th>
+                <th>Dirección</th>
+                <th>Código Postal</th>
+                <th>Horario</th>
+                <th>{combustible}</th>
+                <th>Navegación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {"".join([f"<tr><td>{row['Estación']}</td><td>{row['Localidad']}</td><td>{row['Dirección']}</td><td>{row['Código Postal']}</td><td>{row['Horario']}</td><td>{row['Precio']}</td><td>{row['Navegación']}</td></tr>" for _, row in baratas.head(x).iterrows()])}
+        </tbody>
+    </table>
+    """
+    components.html(html, height=500, scrolling=True)
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
