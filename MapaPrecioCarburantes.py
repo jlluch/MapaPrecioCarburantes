@@ -189,7 +189,7 @@ else :
     baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
     st.subheader('Más baratas de la provincia: '+provincia)
 
-x=min(len(baratas), 10)
+x=min(len(baratas), 20)
 if x > 0:
     baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
     baratas = baratas[['Rótulo', 'Localidad', 'Dirección', 'Código postal', 'Horario', combustible, 'Latitud', 'Longitud']]
