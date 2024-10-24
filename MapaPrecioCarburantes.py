@@ -191,7 +191,7 @@ else :
 
 x=min(len(baratas), 20)
 if x > 0:
-    baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
+    #baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
     baratas = baratas[['Rótulo', 'Localidad', 'Dirección', 'Código postal', 'Horario', combustible, 'Latitud', 'Longitud']]
     baratas.columns = ['Estación', 'Localidad', 'Dirección', 'Código Postal', 'Horario', 'Precio', 'Latitud', 'Longitud']
     baratas['Navegación'] = baratas.apply(lambda row: f"<a href='https://www.google.com/maps/search/?api=1&query={row['Latitud']},{row['Longitud']}' target='_blank'><img src='https://cdn-icons-png.flaticon.com/512/888/888856.png' width='20' height='20'></a>", axis=1)
