@@ -73,8 +73,7 @@ def rgb_to_hex(rgb):
 def cargarFichero():
     URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
     #res = get_legacy_session().get(URL)
-    session = get_legacy_session()
-    res = session.get(URL, verify=False)
+    res = requests.get(URL, verify=False)
     df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
     # pull update data from XLS
     update_date = pd.read_excel(io.BytesIO(res.content), header=None, usecols="B", nrows=1, engine="xlrd").iloc[0, 0]
