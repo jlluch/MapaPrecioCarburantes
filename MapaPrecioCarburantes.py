@@ -21,6 +21,7 @@ import urllib3
 import requests
 import ssl
 import io
+import urllib3
 
 APP_TITLE = 'Precio de carburantes de estaciones de servicio'
 APP_SUB_TITLE = 'Fuente: Ministerio transición ecológica.'
@@ -45,8 +46,8 @@ def rgb_to_hex(rgb):
 
 @st.cache_data(ttl=86400) 
 def cargarFichero():
-    URL = "http://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
-    res = requests.get(URL)
+    URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
+    res = requests.get(URL, verify=False)
     df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
     # pull update data from XLS
     update_date = pd.read_excel(io.BytesIO(res.content), header=None, usecols="B", nrows=1, engine="xlrd").iloc[0, 0]
@@ -126,6 +127,7 @@ def get_buffer_box_geopandas(point_lat_long, distance_km):
 st.set_page_config(page_title=APP_TITLE,layout="wide")
 st.title(APP_TITLE)
 
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 combustible = display_comb_filter()
 provincia = display_prov_filter()
 
