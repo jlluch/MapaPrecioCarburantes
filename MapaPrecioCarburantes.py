@@ -21,32 +21,6 @@ import urllib3
 import requests
 import ssl
 import io
-import urllib3
-
-#ssl._create_default_https_context = ssl._create_unverified_context
-
-class CustomHttpAdapter(requests.adapters.HTTPAdapter):
-    # "Transport adapter" that allows us to use custom ssl_context.
-
-    def __init__(self, ssl_context=None, **kwargs):
-        self.ssl_context = ssl_context
-        super().__init__(**kwargs)
-
-    def init_poolmanager(self, connections, maxsize, block=False):
-        self.poolmanager = urllib3.poolmanager.PoolManager(
-            num_pools=connections,
-            maxsize=maxsize,
-            block=block,
-            ssl_context=self.ssl_context,
-        )
-
-
-def get_legacy_session():
-    ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
-    ctx.options |= 0x4  # OP_LEGACY_SERVER_CONNECT
-    session = requests.session()
-    session.mount("https://", CustomHttpAdapter(ctx))
-    return session
 
 APP_TITLE = 'Precio de carburantes de estaciones de servicio'
 APP_SUB_TITLE = 'Fuente: Ministerio transición ecológica.'
@@ -71,9 +45,8 @@ def rgb_to_hex(rgb):
 
 @st.cache_data(ttl=86400) 
 def cargarFichero():
-    URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
-    #res = get_legacy_session().get(URL)
-    res = requests.get(URL, verify=False)
+    URL = "http://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
+    res = requests.get(URL)
     df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
     # pull update data from XLS
     update_date = pd.read_excel(io.BytesIO(res.content), header=None, usecols="B", nrows=1, engine="xlrd").iloc[0, 0]
@@ -152,7 +125,6 @@ def get_buffer_box_geopandas(point_lat_long, distance_km):
 
 st.set_page_config(page_title=APP_TITLE,layout="wide")
 st.title(APP_TITLE)
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 combustible = display_comb_filter()
 provincia = display_prov_filter()
