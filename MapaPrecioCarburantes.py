@@ -191,7 +191,7 @@ if x > 0:
         </tbody>
     </table>
     """
-    st.iframe(html, height=500)
+    st.iframe(html, height=500, scrolling=True)
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
