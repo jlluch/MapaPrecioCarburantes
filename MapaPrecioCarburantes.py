@@ -69,8 +69,8 @@ def cargarFichero():
     df['data'] = ''
     df['color'] = ''
     for i in range(len(df)):
-        pr = df[combustible].iat[i]
-        pro = df.Provincia.iat[i]
+        pr = df.loc[df.index[i], 'combustible']
+        pro = df.loc[df.index[i], 'Provincia']
         maxim = prov_data[prov_data.Provincia==pro].iat[0,3]
         minim = prov_data[prov_data.Provincia==pro].iat[0,2]
         dif = maxim-minim
@@ -79,8 +79,8 @@ def cargarFichero():
         else:
             norm = (pr-minim)/dif
         if norm>=0:           
-            df['color'].iat[i] = '#'+rgb_to_hex((int(norm*255),int((1.0-norm)*255),0))
-            df['data'].iat[i] = str(df.Localidad.iat[i])+"\n"+str(df.Dirección.iat[i])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df['Precio gasóleo A'].iat[i])+"€"
+            df.loc[df.index[i], 'color'] = '#'+rgb_to_hex((int(norm*255),int((1.0-norm)*255),0))
+            df.loc[df.index[i], 'data'] = str(df.loc[df.index[i], 'Localidad'])+"\n"+str(df.loc[df.index[i], 'Dirección'])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df.loc[df.index[i], 'Precio gasóleo A'])+"€"
     return df, prov_data, gdf, FAct
 
 def display_prov_filter():    
@@ -95,11 +95,11 @@ def display_precios_provincia():
     dfaux = prov_data[prov_data['Provincia'] == provincia]
     col1, col2, col3 = st.sidebar.columns(3)
     with col1:
-        st.metric('Mínimo', str(dfaux['min'].iat[0])+' €')
+        st.metric('Mínimo', str(dfaux.loc[df.index[0], 'min'])+' €')
     with col2:        
-        st.metric('Medio', str(round(dfaux['mean'].iat[0],3))+' €')
+        st.metric('Medio', str(round(dfaux.loc[df.index[0], 'mean'],3))+' €')
     with col3:
-        st.metric('Máximo', str(dfaux['max'].iat[0])+' €')
+        st.metric('Máximo', str(dfaux.loc[df.index[0], 'max'])+' €')
 
 def myPosition():
     return st.checkbox('Obtener mi posición')
@@ -199,7 +199,7 @@ m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=Tru
 folium.Choropleth(geo_data=prov_geo,name="choropleth",data=prov_data,columns=["codigo", 'mean'],key_on="properties.codigo", fill_color="Greys",fill_opacity=0.4,line_opacity=1.0,legend_name="Precio medio: "+combustible).add_to(m)
 
 for i in range(len(dfprov)):
-    folium.Circle(location=[dfprov.Latitud.iat[i],dfprov.Longitud.iat[i],],popup=dfprov.data.iat[i],radius=100,color=dfprov.color.iat[i],fill=True, fill_opacity=0.7).add_to(m)
+    folium.Circle(location=[dfprov.loc[dfprov.index[i], 'Latitud'],dfprov.loc[dfprov.index[i], 'Longitud']],popup=dfprov.loc[dfprov.index[i], 'data'],radius=100,color=dfprov.loc[dfprov.index[i], 'color'],fill=True, fill_opacity=0.7).add_to(m)
 
 
 
