@@ -174,9 +174,43 @@ if x > 0:
 
     # Render Bootstrap table
     html = f"""
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <table class="table table-striped">
-        <thead class="table-dark">
+<style>
+.table-wrap {{
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}}
+
+.custom-table {{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}}
+
+.custom-table thead th {{
+    position: sticky;
+    top: 0;
+    background: #212529;
+    color: white;
+    padding: 8px;
+    text-align: left;
+    z-index: 1;
+}}
+
+.custom-table td {{
+    padding: 8px;
+    border-top: 1px solid #dee2e6;
+}}
+
+.custom-table tbody tr:nth-child(odd) {{
+    background-color: #f8f9fa;
+}}
+</style>
+
+<div class="table-wrap">
+    <table class="custom-table">
+        <thead>
             <tr>
                 <th>Estación</th>
                 <th>Localidad</th>
@@ -188,11 +222,24 @@ if x > 0:
             </tr>
         </thead>
         <tbody>
-            {"".join([f"<tr><td>{row['Estación']}</td><td>{row['Localidad']}</td><td>{row['Dirección']}</td><td>{row['Código Postal']}</td><td>{row['Horario']}</td><td>{row['Precio']}</td><td>{row['Navegación']}</td></tr>" for _, row in baratas.head(x).iterrows()])}
+            {"".join([
+                f"<tr>"
+                f"<td>{row['Estación']}</td>"
+                f"<td>{row['Localidad']}</td>"
+                f"<td>{row['Dirección']}</td>"
+                f"<td>{row['Código Postal']}</td>"
+                f"<td>{row['Horario']}</td>"
+                f"<td>{row['Precio']}</td>"
+                f"<td>{row['Navegación']}</td>"
+                f"</tr>"
+                for _, row in baratas.head(x).iterrows()
+            ])}
         </tbody>
     </table>
-    """
-    components.html(html, height=400, scrolling=True)
+</div>
+"""
+
+st.html(html)
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
