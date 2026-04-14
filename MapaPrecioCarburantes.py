@@ -206,5 +206,5 @@ for i in range(len(dfprov)):
 if location != None: 
     m.add_child(fg)
 
-st_folium(m, width=800, height=600)
+folium_static(m, width=800, height=600)
 
