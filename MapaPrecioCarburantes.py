@@ -192,7 +192,7 @@ if x > 0:
         </tbody>
     </table>
     """
-    st.html(html,  width="stretch")
+    components.html(html, height=400, scrolling=True)
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
