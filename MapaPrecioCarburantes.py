@@ -16,6 +16,7 @@ from streamlit_folium import st_folium, folium_static
 from datetime import datetime
 import geopandas as gpd
 from math import sqrt
+#import pytz
 import urllib3
 import requests
 import ssl
@@ -44,7 +45,7 @@ def rgb_to_hex(rgb):
     return '%02x%02x%02x' % rgb
 
 @st.cache_data(ttl=86400) 
-def cargarFichero(combustible):
+def cargarFichero():
     URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
     res = requests.get(URL, verify=False)
     df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
@@ -53,7 +54,7 @@ def cargarFichero(combustible):
     FAct = "Actualizado: " + str(update_date)
     #df = pd.read_excel(URL, skiprows=3, engine="xlrd")
     # Provincia	Municipio	Localidad	Código postal	Dirección	Margen	Longitud	Latitud	Toma de datos	
-    # Precio gasolina 95 E5	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
+    # Precio gasolina 95 E5	Precio gasolina 95 E10	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
     elim = ['MELILLA','CEUTA','PALMAS (LAS)','SANTA CRUZ DE TENERIFE']
     df = df[~df.Provincia.isin(elim)] 
     cols = ['Precio gasolina 95 E5','Precio gasolina 98 E5','Precio gasóleo A','Longitud','Latitud']
@@ -130,7 +131,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 combustible = display_comb_filter()
 provincia = display_prov_filter()
 
-df, prov_data, gdf, FAct = cargarFichero(combustible)
+df, prov_data, gdf, FAct = cargarFichero()
 
 dfprov = df[df.Provincia == provincia].reset_index()
 
