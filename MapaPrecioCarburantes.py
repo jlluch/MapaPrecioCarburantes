@@ -69,7 +69,7 @@ def cargarFichero():
     df['data'] = ''
     df['color'] = ''
     for i in range(len(df)):
-        pr = df.loc[df.index[i], 'Combustible']
+        pr = df.loc[df.index[i], combustible]
         pro = df.loc[df.index[i], 'Provincia']
         maxim = prov_data[prov_data.Provincia==pro].iat[0,3]
         minim = prov_data[prov_data.Provincia==pro].iat[0,2]
