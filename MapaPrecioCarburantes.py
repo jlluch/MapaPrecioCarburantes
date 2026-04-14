@@ -8,6 +8,7 @@ Created on Wed Apr  6 16:41:40 2022
 
 import streamlit as st
 from streamlit_js_eval import streamlit_js_eval, get_geolocation
+import streamlit.components.v1 as components
 import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
@@ -43,7 +44,7 @@ def rgb_to_hex(rgb):
     return '%02x%02x%02x' % rgb
 
 @st.cache_data(ttl=86400) 
-def cargarFichero(combustible):
+def cargarFichero():
     URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
     res = requests.get(URL, verify=False)
     df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
@@ -52,7 +53,7 @@ def cargarFichero(combustible):
     FAct = "Actualizado: " + str(update_date)
     #df = pd.read_excel(URL, skiprows=3, engine="xlrd")
     # Provincia	Municipio	Localidad	Código postal	Dirección	Margen	Longitud	Latitud	Toma de datos	
-    # Precio gasolina 95 E5	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
+    # Precio gasolina 95 E5	Precio gasolina 95 E10	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
     elim = ['MELILLA','CEUTA','PALMAS (LAS)','SANTA CRUZ DE TENERIFE']
     df = df[~df.Provincia.isin(elim)] 
     cols = ['Precio gasolina 95 E5','Precio gasolina 98 E5','Precio gasóleo A','Longitud','Latitud']
@@ -78,8 +79,8 @@ def cargarFichero(combustible):
         else:
             norm = (pr-minim)/dif
         if norm>=0:           
-            df.loc[i, 'color'] = '#'+rgb_to_hex((int(norm*255),int((1.0-norm)*255),0))
-            df.loc[i, 'data'] = str(df.Localidad.iat[i])+"\n"+str(df.Dirección.iat[i])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df['Precio gasóleo A'].iat[i])+"€"
+            df['color'].iat[i] = '#'+rgb_to_hex((int(norm*255),int((1.0-norm)*255),0))
+            df['data'].iat[i] = str(df.Localidad.iat[i])+"\n"+str(df.Dirección.iat[i])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df['Precio gasóleo A'].iat[i])+"€"
     return df, prov_data, gdf, FAct
 
 def display_prov_filter():    
@@ -129,7 +130,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 combustible = display_comb_filter()
 provincia = display_prov_filter()
 
-df, prov_data, gdf, FAct = cargarFichero(combustible)
+df, prov_data, gdf, FAct = cargarFichero()
 
 dfprov = df[df.Provincia == provincia].reset_index()
 
@@ -191,7 +192,7 @@ if x > 0:
         </tbody>
     </table>
     """
-    st.iframe(html, height=500)
+    components.html(html, height=500, scrolling=True)
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
@@ -205,5 +206,5 @@ for i in range(len(dfprov)):
 if location != None: 
     m.add_child(fg)
 
-st_folium(m, width=800, height=600)
+folium_static(m, width=800, height=600)
 
