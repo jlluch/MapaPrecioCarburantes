@@ -95,11 +95,11 @@ def display_precios_provincia():
     dfaux = prov_data[prov_data['Provincia'] == provincia]
     col1, col2, col3 = st.sidebar.columns(3)
     with col1:
-        st.metric('Mínimo', str(dfaux.loc[df.index[0], 'min'])+' €')
+        st.metric('Mínimo', str(dfaux['min'].iat[0])+' €')
     with col2:        
-        st.metric('Medio', str(round(dfaux.loc[df.index[0], 'mean'],3))+' €')
+        st.metric('Medio', str(round(dfaux['mean'].iat[0],3))+' €')
     with col3:
-        st.metric('Máximo', str(dfaux.loc[df.index[0], 'max'])+' €')
+        st.metric('Máximo', str(dfaux['max'].iat[0])+' €')
 
 def myPosition():
     return st.checkbox('Obtener mi posición')
