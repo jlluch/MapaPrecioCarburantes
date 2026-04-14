@@ -8,6 +8,7 @@ Created on Wed Apr  6 16:41:40 2022
 
 import streamlit as st
 from streamlit_js_eval import streamlit_js_eval, get_geolocation
+import streamlit.components.v1 as components
 import pandas as pd
 import folium
 from folium.plugins import MarkerCluster
@@ -78,8 +79,8 @@ def cargarFichero(combustible):
         else:
             norm = (pr-minim)/dif
         if norm>=0:           
-            df.loc[i, 'color'] = '#'+rgb_to_hex((int(norm*255),int((1.0-norm)*255),0))
-            df.loc[i, 'data'] = str(df.Localidad.iat[i])+"\n"+str(df.Dirección.iat[i])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df['Precio gasóleo A'].iat[i])+"€"
+            df['color'].iat[i] = '#'+rgb_to_hex((int(norm*255),int((1.0-norm)*255),0))
+            df['data'].iat[i] = str(df.Localidad.iat[i])+"\n"+str(df.Dirección.iat[i])+"\nGas 95: "+str(pr)+"€"+"\nDiesel: "+str(df['Precio gasóleo A'].iat[i])+"€"
     return df, prov_data, gdf, FAct
 
 def display_prov_filter():    
@@ -191,7 +192,7 @@ if x > 0:
         </tbody>
     </table>
     """
-    st.iframe(html, height=500, scrolling=True)
+    components.html(html, height=500, scrolling=True)
 
 m = folium.Map(location=[latMap, lonMap], zoom_start=8,attr='LOL',max_bounds=True,min_zoom=5.5)
 
@@ -205,5 +206,5 @@ for i in range(len(dfprov)):
 if location != None: 
     m.add_child(fg)
 
-st_folium(m, width=800, height=600)
+folium_static(m, width=800, height=600)
 
