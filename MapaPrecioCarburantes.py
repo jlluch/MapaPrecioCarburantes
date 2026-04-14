@@ -16,7 +16,7 @@ from streamlit_folium import st_folium, folium_static
 from datetime import datetime
 import geopandas as gpd
 from math import sqrt
-import pytz
+#import pytz
 import urllib3
 import requests
 import ssl
