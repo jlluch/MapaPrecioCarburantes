@@ -42,7 +42,7 @@ columnas = ['Provincia', 'Municipio', 'Localidad', 'Código postal', 'Dirección
 def rgb_to_hex(rgb):
     return '%02x%02x%02x' % rgb
 
-@st.cache_data(ttl=86400) 
+@st.cache_data(ttl=10800) 
 def cargarFichero():
     URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
     res = requests.get(URL, verify=False)
