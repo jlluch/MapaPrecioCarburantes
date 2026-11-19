@@ -64,9 +64,9 @@ def cargarFichero():
     if "text/html" in tipo.lower() or inicio.startswith((b"<!doctype", b"<html")):
         raise ValueError("El Geoportal devolvió una página HTML en lugar del XLS.")
 
-    with pd.ExcelFile(io.BytesIO(contenido), engine="xlrd") as excel:
-        df = excel.parse(skiprows=3)
-        update_date = excel.parse(header=None, usecols="B", nrows=1).iloc[0, 0]
+    with pd.ExcelFile(io.BytesIO(contenido), engine="calamine") as excel:
+               df = pd.read_excel(excel, skiprows=3)
+               update_date = pd.read_excel(excel, header=None, usecols="B", nrows=1).iloc[0, 0]
 
     FAct = f"Actualizado: {update_date}"
     # Provincia	Municipio	Localidad	Código postal	Dirección	Margen	Longitud	Latitud	Toma de datos	
