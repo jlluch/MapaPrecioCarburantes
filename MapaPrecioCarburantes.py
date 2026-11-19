@@ -44,13 +44,31 @@ def rgb_to_hex(rgb):
 
 @st.cache_data(ttl=10800) 
 def cargarFichero():
-    URL = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
-    res = requests.get(URL, verify=False)
-    df = pd.read_excel(io.BytesIO(res.content), skiprows=3, engine="xlrd")
-    # pull update data from XLS
-    update_date = pd.read_excel(io.BytesIO(res.content), header=None, usecols="B", nrows=1, engine="xlrd").iloc[0, 0]
-    FAct = "Actualizado: " + str(update_date)
-    #df = pd.read_excel(URL, skiprows=3, engine="xlrd")
+    url = "https://geoportalgasolineras.es/resources/files/preciosEESS_es.xls"
+    res = requests.get(url, timeout=30)
+
+    contenido = res.content
+    tipo = res.headers.get("Content-Type", "")
+
+    print(
+        f"Geoportal: HTTP {res.status_code} | URL final: {res.url} | "
+        f"Content-Type: {tipo} | Redirecciones: "
+        f"{[r.status_code for r in res.history]} | "
+        f"Primeros bytes: {contenido[:24]!r}",
+        flush=True,
+    )
+
+    res.raise_for_status()
+
+    inicio = contenido[:512].lstrip().lower()
+    if "text/html" in tipo.lower() or inicio.startswith((b"<!doctype", b"<html")):
+        raise ValueError("El Geoportal devolvió una página HTML en lugar del XLS.")
+
+    with pd.ExcelFile(io.BytesIO(contenido), engine="xlrd") as excel:
+        df = excel.parse(skiprows=3)
+        update_date = excel.parse(header=None, usecols="B", nrows=1).iloc[0, 0]
+
+    FAct = f"Actualizado: {update_date}"
     # Provincia	Municipio	Localidad	Código postal	Dirección	Margen	Longitud	Latitud	Toma de datos	
     # Precio gasolina 95 E5	Precio gasolina 95 E10	Precio gasolina 95 E5 Premium	Precio gasolina 98 E5	Precio gasolina 98 E10	Precio gasóleo A	Precio gasóleo Premium	Precio gasóleo B	Precio gasóleo C	Precio bioetanol	% bioalcohol	Precio biodiésel	% éster metílico	Precio gases licuados del petróleo	Precio gas natural comprimido	Precio gas natural licuado	Precio hidrógeno	Rótulo	Tipo venta	Rem.	Horario	Tipo servicio       
     elim = ['MELILLA','CEUTA','PALMAS (LAS)','SANTA CRUZ DE TENERIFE']
