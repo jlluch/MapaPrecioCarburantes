@@ -155,18 +155,17 @@ if location != None:
     fg.add_child(folium.vector_layers.Circle(location=[latMap , lonMap], radius=radio*1000, color='orange'))
     bb = get_buffer_box_geopandas([location.get('coords').get('latitude'), location.get('coords').get('longitude')],radio)
     gdfSel = gdf.cx[bb[0]:bb[2], bb[1]:bb[3]]
-    baratas = gdfSel.sort_values(by=combustible).reset_index(inplace=False)
+    baratas = gdfSel.sort_values(by=combustible).reset_index()
     st.subheader('Más baratas a: ' + str(radio)+ ' kms de tu posición')
 
 else :
     lonMap=dfprov.Longitud.mean()
     latMap=dfprov.Latitud.mean()    
-    baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
+    baratas = dfprov.sort_values(by=combustible).reset_index()
     st.subheader('Más baratas de la provincia: '+provincia)
 
 x=min(len(baratas), 20)
 if x > 0:
-    #baratas = dfprov.sort_values(by=combustible).reset_index(inplace=False)
     baratas = baratas[['Rótulo', 'Localidad', 'Dirección', 'Código postal', 'Horario', combustible, 'Latitud', 'Longitud']]
     baratas.columns = ['Estación', 'Localidad', 'Dirección', 'Código Postal', 'Horario', 'Precio', 'Latitud', 'Longitud']
     baratas['Navegación'] = baratas.apply(lambda row: f"<a href='https://www.google.com/maps/search/?api=1&query={row['Latitud']},{row['Longitud']}' target='_blank'><img src='https://cdn-icons-png.flaticon.com/512/888/888856.png' width='20' height='20'></a>", axis=1)
@@ -252,5 +251,6 @@ for i in range(len(dfprov)):
 if location != None: 
     m.add_child(fg)
 
-folium_static(m, width=800, height=600)
+#folium_static(m, width=800, height=600)
+st_folium(m, width=800, height=600, returned_objects=[])
 
